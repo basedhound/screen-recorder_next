@@ -1,36 +1,198 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <br />
+    <a href="" target="_blank">
+      <img src="public/readme/hero.jpg" alt="Project Banner">
+    </a>
+  <br />
 
-## Getting Started
+  <div>
+    <img src="https://img.shields.io/badge/-Next.JS-black?style=for-the-badge&logoColor=white&logo=nextdotjs&color=black" alt="next.js" />
+    <img src="https://img.shields.io/badge/Bunny.net-F47326?style=for-the-badge&logo=bunnyvideo&logoColor=white">
+    <img src="https://img.shields.io/badge/-Tailwind-00BCFF?style=for-the-badge&logo=tailwind-css&logoColor=white" />
+  </div>
 
-First, run the development server:
+  <h3 align="center">Full Stack Screen Recording & Video Sharing Platform</h3>
+
+   <div align="center">
+     Build this project step by step with our detailed tutorial on <a href="" target="_blank"><b>JavaScript Mastery</b></a> YouTube. Join the JSM family!
+    </div>
+</div>
+
+## 📋 <a name="table">Table of Contents</a>
+
+1. 🤖 [Introduction](#introduction)
+2. ⚙️ [Tech Stack](#tech-stack)
+3. 🔋 [Features](#features)
+4. 🤸 [Quick Start](#quick-start)
+5. 🕸️ [Snippets (Code to Copy)](#snippets)
+6. 🔗 [Assets](#links)
+7. 🚀 [More](#more)
+
+## 🚨 Tutorial
+
+This repository contains the code corresponding to an in-depth tutorial available on our YouTube channel, <a href="https://www.youtube.com/@javascriptmastery/videos" target="_blank"><b>JavaScript Mastery</b></a>.
+
+If you prefer visual learning, this is the perfect resource for you. Follow our tutorial to learn how to build projects like these step-by-step in a beginner-friendly manner!
+
+<a href="" target="_blank"><img src="https://github.com/sujatagunale/EasyRead/assets/151519281/1736fca5-a031-4854-8c09-bc110e3bc16d" /></a>
+
+## <a name="introduction">🤖 Introduction</a>
+
+Built with Next.js and Bunny.net, this Full Stack Screen Recording & Video Sharing Platform includes user authentication with "Better Auth", screen recording, video uploads, and the ability to share videos via link. Users can set videos as public or private, view AI-generated transcripts, and access metadata like video ID and URL. A built-in search bar makes finding content fast and simple.
+
+If you're getting started and need assistance or face any bugs, join our active Discord community with over **50k+** members. It's a place where people help each other out.
+
+<a href="https://discord.com/invite/n6EdbFJ" target="_blank"><img src="https://github.com/sujatagunale/EasyRead/assets/151519281/618f4872-1e10-42da-8213-1d69e486d02e" /></a>
+
+## <a name="tech-stack">⚙️ Tech Stack</a>
+
+- **[Next.js](https://nextjs.org/)** is a powerful React framework that enables the development of fast, scalable web applications with features like server-side rendering, static site generation, and API routes for building full-stack applications. 
+
+- **[Tailwind CSS](https://tailwindcss.com/)** is a utility-first CSS framework that allows developers to design custom user interfaces by applying low-level utility classes directly in HTML, streamlining the design process.  
+- **[shadcn/ui](https://ui.shadcn.com/)** is an open-source collection of accessible and customizable UI components designed for React, built to seamlessly integrate with Tailwind CSS for creating consistent, high-quality interfaces.  
+- **[Better Auth](https://www.better-auth.com/)** is a TypeScript-first authentication and authorization library that simplifies implementing secure login, two-factor authentication, and social sign-ins, all while supporting multi-tenancy.  
+- **[Drizzle ORM](https://orm.drizzle.team/)** is a type-safe, lightweight ORM for SQL databases, providing a modern solution for interacting with databases using TypeScript, supporting migrations, queries, and schema management.  
+- **[Xata](https://xata.io)** is a serverless PostgreSQL platform offering auto-scaling, zero-downtime schema migrations, real-time branching, and built-in full-text search. It provides a spreadsheet-like UI for intuitive data management, enhancing modern development workflows.
+- **[TypeScript](https://www.typescriptlang.org/)** is a superset of JavaScript that adds static typing, providing better tooling, code quality, and error detection for developers, making it ideal for building large-scale applications.
+
+## <a name="features">🔋 Features</a>
+
+👉 **Authentication**: Secure user sign-up and sign-in with password/email authentication.  
+
+👉 **Screen Recording**: Capture your screen directly within the app for seamless video recording.  
+
+👉 **Video Uploading**: Effortlessly upload videos with a simple interface, supporting both public and private settings.  
+
+👉 **AI Transcripts**: Get AI-generated transcripts for uploaded videos, making content more accessible and searchable.  
+
+👉 **Privacy Control**: Toggle video visibility between public and private, ensuring full control over your content.  
+
+👉 **Metadata**: Access video metadata, including unique video ID and URL, for easy sharing and referencing.  
+
+👉 **Search Functionality**: Find your videos quickly with an intuitive search bar, streamlining navigation.  
+
+👉 **Share Videos**: Share videos via unique links for easy access and distribution.  
+
+👉 **Modern UI/UX**: Clean, responsive design built with Tailwind CSS and shadcn/ui for a sleek user experience.  
+
+👉 **Database Integration**: Utilize Neon Postgres for real-time, scalable database management.  
+
+👉 **Type-Safe Queries**: Benefit from Drizzle ORM’s type-safe queries for secure and efficient database interactions.  
+
+👉 **Scalable Tech Stack**: Built with Next.js for a fast, production-ready web application that scales seamlessly.  
+
+👉 **Code Reusability**: Leverage reusable components and a modular codebase for efficient development.  
+
+👉 **Cross-Device Compatibility**: Fully responsive design that works seamlessly across all devices.  
+
+And many more, including enhanced security and optimized video performance!
+
+
+## <a name="quick-start">🤸 Quick Start</a>
+
+Follow these steps to set up the project locally on your machine.
+
+**Prerequisites**
+
+Make sure you have the following installed on your machine:
+
+- [Git](https://git-scm.com/)
+- [Node.js](https://nodejs.org/en)
+- [npm](https://www.npmjs.com/) (Node Package Manager)
+
+**Cloning the Repository**
+
+```bash
+git clone https://github.com/JavaScript-Mastery-Pro/loom-app.git 
+cd loom-app
+```
+
+**Installation**
+
+Install the project dependencies using npm:
+
+```bash
+npm install
+```
+
+**Set Up Environment Variables**
+
+Create a new file named `.env` in the root of your project and add the following content:
+
+```env
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+BUNNY_STORAGE_ACCESS_KEY=
+BUNNY_LIBRARY_ID=
+BUNNY_STREAM_ACCESS_KEY=
+
+DATABASE_URL_POSTGRES=
+
+# [Xata] Configuration used by the CLI and the SDK
+# Make sure your framework/tooling loads this file on startup to have it available for the SDK
+XATA_BRANCH=main
+XATA_API_KEY=
+```
+
+Replace the placeholder values with your actual ImageKit, NeonDB, Upstash, and Resend credentials. You can obtain these credentials by signing up on:
+- [Better-Auth](https://www.better-auth.com)
+- [Google](https://console.cloud.google.com)
+- [Bunny.net](https://dash.bunny.net)
+- [Xata.io](https://xata.io)
+
+**Running the Project**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser to view the project.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## <a name="snippets">🕸️ Snippets</a>
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+<details>
+<summary><code>Example</code></summary>
+```typescript
+copy the code here 
+```
+</details>
 
-## Learn More
+<details>
+<summary><code>Example</code></summary>
+```css
+copy the code here 
+```
+</details>
 
-To learn more about Next.js, take a look at the following resources:
+<details>
+<summary><code>Example</code></summary>
+```typescript
+copy the code here 
+```
+</details>
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## <a name="links">🔗 Assets</a>
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Assets and snippets used in the project can be found in the **[video kit](https://jsm.dev/snapcast-kit)**.
 
-## Deploy on Vercel
+<a href="https://jsm.dev/snapcast-kit" target="_blank">
+  <img src="public/readme/videokit.jpg" alt="Video Kit Banner">
+</a>
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## <a name="more">🚀 More</a>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Advance your skills with Next.js Pro Course**
+
+Enjoyed creating this project? Dive deeper into our PRO courses for a richer learning adventure. They're packed with
+detailed explanations, cool features, and exercises to boost your skills. Give it a go!
+
+<a href="https://jsmastery.pro/" target="_blank">
+  <img src="public/readme/jsmpro.jpg" alt="Project Banner">
+</a>
+# screen-recorder_next
