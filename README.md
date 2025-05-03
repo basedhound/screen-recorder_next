@@ -195,4 +195,3 @@ detailed explanations, cool features, and exercises to boost your skills. Give i
 <a href="https://jsmastery.pro/" target="_blank">
   <img src="public/readme/jsmpro.jpg" alt="Project Banner">
 </a>
-# screen-recorder_next
