@@ -1,7 +1,7 @@
 "use client";
-
 import Link from "next/link";
 import Image from "next/image";
+import { authClient } from "@/lib/auth-client";
 
 const SignIn = () => {
   return (
@@ -66,8 +66,12 @@ const SignIn = () => {
             Create and share your very first <span>SnapCast video</span> in no
             time!
           </p>
-
-          <button>
+          <button
+            onClick={async () => {
+              return await authClient.signIn.social({
+                provider: "google",
+              });
+            }}>
             <Image
               src="/assets/icons/google.svg"
               alt="Google Icon"
