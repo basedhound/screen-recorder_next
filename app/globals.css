@@ -341,23 +341,6 @@
     }
   }
 
-  /* reaction */
-  .reaction {
-    @apply flex justify-center items-center;
-
-    figure {
-      @apply flex gap-3 items-center bg-gray-40 border border-gray-20 rounded-4xl px-2.5 py-2;
-
-      button {
-        @apply flex items-center justify-center text-2xl font-normal size-10;
-      }
-
-      .active-reaction {
-        @apply border-pink-100 bg-pink-50 border rounded-full  aspect-square cursor-pointer;
-      }
-    }
-  }
-
   /* record screen */
   .record {
     .primary-btn {
