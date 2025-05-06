@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
-// import RecordScreen from "./RecordScreen";
+import RecordScreen from "./RecordScreen";
 import { filterOptions } from "@/constants";
 import ImageWithFallback from "./ImageWithFallback";
 import DropdownList from "./DropdownList";
@@ -99,7 +99,7 @@ const SharedHeader = ({ subHeader, title, userImg }: SharedHeaderProps) => {
             />
             <span>Upload a video</span>
           </Link>
-          {/* <RecordScreen /> */}
+          <RecordScreen />
         </aside>
       </section>
       <section className="search-filter">
