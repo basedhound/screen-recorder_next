@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 import {
   apiFetch,
   getEnv,
-  // getOrderByClause,
+  getOrderByClause,
   withErrorHandling,
 } from "../utils";
 
@@ -104,5 +104,65 @@ export const saveVideoDetails = withErrorHandling(
 
     revalidatePaths(["/"]);
     return { videoId: videoDetails.videoId };
+  }
+);
+
+
+export const getAllVideos = withErrorHandling(
+  async (
+    searchQuery: string = "",
+    sortFilter?: string,
+    pageNumber: number = 1,
+    pageSize: number = 8
+  ) => {
+    const currentUserId = (
+      await auth.api.getSession({ headers: await headers() })
+    )?.user.id;
+
+    // Base visibility: public or owned by current user
+    const visibilityCondition = or(
+      eq(videos.visibility, "public"),
+      eq(videos.userId, currentUserId!)
+    );
+
+    // Optional search by normalized title
+    const whereCondition = searchQuery.trim()
+      ? and(
+          visibilityCondition,
+          ilike(
+            sql`REPLACE(REPLACE(REPLACE(LOWER(${videos.title}), '-', ''), '.', ''), ' ', '')`,
+            `%${searchQuery.replace(/[-. ]/g, "").toLowerCase()}%`
+          )
+        )
+      : visibilityCondition;
+
+    // Count total for pagination
+    const [{ totalCount }] = await db
+      .select({ totalCount: sql<number>`count(*)` })
+      .from(videos)
+      .where(whereCondition);
+    const totalVideos = Number(totalCount || 0);
+    const totalPages = Math.ceil(totalVideos / pageSize);
+
+    // Fetch paginated, sorted results
+    const videoRecords = await buildVideoWithUserQuery()
+      .where(whereCondition)
+      .orderBy(
+        sortFilter
+          ? getOrderByClause(sortFilter)
+          : sql`${videos.createdAt} DESC`
+      )
+      .limit(pageSize)
+      .offset((pageNumber - 1) * pageSize);
+
+    return {
+      videos: videoRecords,
+      pagination: {
+        currentPage: pageNumber,
+        totalPages,
+        totalVideos,
+        pageSize,
+      },
+    };
   }
 );
