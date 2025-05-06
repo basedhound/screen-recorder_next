@@ -302,7 +302,5 @@ export const calculateRecordingDuration = (startTime: number | null): number =>
   }
 
   export const createIframeLink = (videoId: string) =>
-  `https://iframe.mediadelivery.net/embed/412800/${videoId}?autoplay=true&preload=true`;
-
-  
+  `https://iframe.mediadelivery.net/embed/421422/${videoId}?autoplay=true&preload=true`
   

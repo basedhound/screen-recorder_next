@@ -11,6 +11,7 @@ import {
   getOrderByClause,
   withErrorHandling,
 } from "../utils";
+import arcjet, { request } from "../arcjet";
 
 import { BUNNY } from "@/constants";
 // Constants with full names
@@ -80,7 +81,7 @@ export const getThumbnailUploadUrl = withErrorHandling(
 export const saveVideoDetails = withErrorHandling(
   async (videoDetails: VideoDetails) => {
     const userId = await getSessionUserId();
-
+    await validateWithArcjet(userId);
     await apiFetch(
       `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoDetails.videoId}`,
       {
@@ -106,7 +107,6 @@ export const saveVideoDetails = withErrorHandling(
     return { videoId: videoDetails.videoId };
   }
 );
-
 
 export const getAllVideos = withErrorHandling(
   async (
@@ -195,6 +195,7 @@ export const deleteVideo = withErrorHandling(
 
 export const updateVideoVisibility = withErrorHandling(
   async (videoId: string, visibility: Visibility) => {
+    await validateWithArcjet(videoId);
     await db
       .update(videos)
       .set({ visibility, updatedAt: new Date() })
@@ -276,3 +277,19 @@ export const getAllVideosByUser = withErrorHandling(
     return { user: userInfo, videos: userVideos, count: userVideos.length };
   }
 );
+
+const validateWithArcjet = async (fingerPrint: string) => {
+  const req = await request();
+  const decision = await arcjet.protect(req, { fingerprint: fingerPrint });
+  if (decision.isDenied()) {
+    if (decision.reason.isBot()) {
+      throw new Error("Bot Detected");
+    }
+    if (decision.reason.isRateLimit()) {
+      throw new Error("Rate Limit Exceeded");
+    }
+    if (decision.reason.isShield()) {
+      throw new Error("Shield Detected");
+    }
+  }
+};
