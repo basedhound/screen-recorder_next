@@ -1,24 +1,44 @@
-import {SharedHeader, VideoCard } from "@/components";
+import { EmptyState, /* Pagination, */ SharedHeader, VideoCard } from "@/components";
+import { getAllVideos } from "@/lib/actions/video";
 
-const page = async () => {
+const page = async ({ searchParams }: SearchParams) => {
+  const { query, filter, page } = await searchParams;
+
+  const { videos, pagination } = await getAllVideos(
+    query,
+    filter,
+    Number(page) || 1
+  );
 
   return (
     <main className="wrapper page">
       <SharedHeader subHeader="Public Library" title="All Videos" />
-      <section className="video-grid">
+
+      {videos?.length > 0 ? (
+        <section className="video-grid">
+          {videos.map(({ video, user }) => (
             <VideoCard
-              id="0a535322-a71e-483e-89e7-ec846fe4b893"
-              title="Sample Video"
-              thumbnail="/assets/images/video1.png"
-              createdAt="2025-05-01 06:25:54.437"
-              userImg="/assets/images/jason.png"
-              username="Jason"
-              views={10}
-              reactions={[{"emoji":"👍","userId":"ijVVLbmzXzQP1V0PNp8YJE2WNg1SoPBT"},{"emoji":"😍","userId":"KcsQDEpFy50xApAZyvP2BaI0RU5ltT4S"}]}
-              visibility="public"
-              duration={154}
+              key={video.id}
+              id={video.videoId}
+              title={video.title}
+              thumbnail={video.thumbnailUrl}
+              createdAt={video.createdAt}
+              userImg={user?.image ?? ""}
+              username={user?.name ?? "Guest"}
+              views={video.views}
+              // reactions={video.reactions}
+              visibility={video.visibility}
+              duration={video.duration}
             />
-      </section>
+          ))}
+        </section>
+      ) : (
+        <EmptyState
+          icon="/assets/icons/video.svg"
+          title="No Videos Found"
+          description="Try adjusting your search."
+        />
+      )}
     </main>
   );
 };

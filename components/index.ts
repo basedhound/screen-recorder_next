@@ -4,3 +4,4 @@ export { default as SharedHeader } from "./SharedHeader";
 export { default as VideoCard } from "./VideoCard";
 export { default as FormField } from "./FormField";
 export { default as FileInput } from "./FileInput";
+export { default as EmptyState } from "./EmptyState";
