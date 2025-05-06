@@ -173,3 +173,34 @@ export const getVideoById = withErrorHandling(async (videoId: string) => {
   );
   return videoRecord;
 });
+
+export const deleteVideo = withErrorHandling(
+  async (videoId: string, thumbnailUrl: string) => {
+    await apiFetch(
+      `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoId}`,
+      { method: "DELETE", bunnyType: "stream" }
+    );
+
+    const thumbnailPath = thumbnailUrl.split("thumbnails/")[1];
+    await apiFetch(
+      `${THUMBNAIL_STORAGE_BASE_URL}/thumbnails/${thumbnailPath}`,
+      { method: "DELETE", bunnyType: "storage", expectJson: false }
+    );
+
+    await db.delete(videos).where(eq(videos.videoId, videoId));
+    revalidatePaths(["/", `/video/${videoId}`]);
+    return {};
+  }
+);
+
+export const updateVideoVisibility = withErrorHandling(
+  async (videoId: string, visibility: Visibility) => {
+    await db
+      .update(videos)
+      .set({ visibility, updatedAt: new Date() })
+      .where(eq(videos.videoId, videoId));
+
+    revalidatePaths(["/", `/video/${videoId}`]);
+    return {};
+  }
+);

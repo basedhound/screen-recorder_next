@@ -6,3 +6,4 @@ export { default as FormField } from "./FormField";
 export { default as FileInput } from "./FileInput";
 export { default as EmptyState } from "./EmptyState";
 export { default as Pagination } from "./Pagination";
+export { default as VideoDetailHeader } from "./VideoDetailHeader";
