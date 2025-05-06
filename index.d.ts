@@ -77,7 +77,6 @@ declare interface VideoCardProps {
   username: string;
   createdAt: Date;
   views: number;
-  reactions?: Array<{ userId: string; emoji: string }> | null; // Raw reactions array
   visibility: Visibility;
   duration: number | null;
 }
@@ -113,8 +112,6 @@ declare interface ImageWithFallbackProps extends Omit<ImageProps, "src"> {
 }
 
 type Visibility = "public" | "private";
-
-type Reaction = { userId: string; emoji: string };
 
 declare interface VideoDetails {
   videoId: string;
@@ -177,7 +174,6 @@ declare interface VideoWithUserResult {
     videoUrl: string;
     userId: string;
     views: number;
-    reactions: Reaction[];
     tags: string[];
     visibility: Visibility;
     createdAt: Date;
@@ -199,7 +195,6 @@ declare interface VideoObject {
   videoUrl: string;
   userId: string;
   views: number;
-  reactions: Reaction[];
   tags: string[];
   visibility: Visibility;
   createdAt: Date;
@@ -233,11 +228,6 @@ declare interface SharedHeaderProps {
   userImg?: string;
 }
 
-type ReactionProps = {
-  videoId: string;
-  initialReactions?: Array<{ userId: string; emoji: string }>;
-};
-
 declare interface Params {
   params: Promise<Record<string, string>>;
 }
@@ -251,16 +241,6 @@ declare interface ParamsWithSearch {
   searchParams: Promise<Record<string, string | undefined>>;
 }
 
-declare interface ReactionType {
-  userId: string;
-  emoji: string;
-}
-
-declare interface ReactionProps {
-  videoId: string;
-  initialReactions?: ReactionType[];
-}
-
 declare interface DropdownListProps {
   options: string[];
   selectedOption: string;
@@ -272,4 +252,46 @@ declare interface EmptyStateProps {
   icon: string;
   title: string;
   description: string;
+}
+
+declare interface MediaStreams {
+  displayStream: MediaStream;
+  micStream: MediaStream | null;
+  hasDisplayAudio: boolean;
+}
+
+declare interface BunnyRecordingState {
+  isRecording: boolean;
+  recordedBlob: Blob | null;
+  recordedVideoUrl: string;
+  recordingDuration: number;
+}
+
+declare interface ExtendedMediaStream extends MediaStream {
+  _originalStreams?: MediaStream[];
+}
+
+// Types
+interface VideoQueryResult {
+  video: typeof videos.$inferSelect;
+  user: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  };
+}
+
+interface PaginationResult<T> {
+  data: T[];
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    pageSize: number | unknown;
+  };
+}
+
+declare interface RecordingHandlers {
+  onDataAvailable: (e: BlobEvent) => void;
+  onStop: () => void;
 }
