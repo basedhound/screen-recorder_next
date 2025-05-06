@@ -1,4 +1,9 @@
-import { EmptyState, /* Pagination, */ SharedHeader, VideoCard } from "@/components";
+import {
+  EmptyState,
+  Pagination,
+  /* Pagination, */ SharedHeader,
+  VideoCard,
+} from "@/components";
 import { getAllVideos } from "@/lib/actions/video";
 
 const page = async ({ searchParams }: SearchParams) => {
@@ -37,6 +42,14 @@ const page = async ({ searchParams }: SearchParams) => {
           icon="/assets/icons/video.svg"
           title="No Videos Found"
           description="Try adjusting your search."
+        />
+      )}
+      {pagination?.totalPages > 1 && (
+        <Pagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          queryString={query}
+          filterString={filter}
         />
       )}
     </main>
