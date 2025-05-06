@@ -284,3 +284,19 @@ export const calculateRecordingDuration = (startTime: number | null): number =>
   
     return result;
   }
+
+  export function daysAgo(inputDate: Date): string {
+    const input = new Date(inputDate);
+    const now = new Date();
+  
+    const diffTime = now.getTime() - input.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+    if (diffDays <= 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "1 day ago";
+    } else {
+      return `${diffDays} days ago`;
+    }
+  }
