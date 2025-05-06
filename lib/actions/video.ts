@@ -231,3 +231,48 @@ export const incrementVideoViews = withErrorHandling(
     return {};
   }
 );
+
+export const getTranscript = withErrorHandling(async (videoId: string) => {
+  const response = await fetch(
+    `${BUNNY.TRANSCRIPT_URL}/${videoId}/captions/en-auto.vtt`
+  );
+  return response.text();
+});
+
+export const getAllVideosByUser = withErrorHandling(
+  async (
+    userIdParameter: string,
+    searchQuery: string = "",
+    sortFilter?: string
+  ) => {
+    const currentUserId = (
+      await auth.api.getSession({ headers: await headers() })
+    )?.user.id;
+    const isOwner = userIdParameter === currentUserId;
+
+    const [userInfo] = await db
+      .select({
+        id: user.id,
+        name: user.name,
+        image: user.image,
+        email: user.email,
+      })
+      .from(user)
+      .where(eq(user.id, userIdParameter));
+    if (!userInfo) throw new Error("User not found");
+
+    const conditions = [
+      eq(videos.userId, userIdParameter),
+      !isOwner && eq(videos.visibility, "public"),
+      searchQuery.trim() && ilike(videos.title, `%${searchQuery}%`),
+    ].filter(Boolean) as any[];
+
+    const userVideos = await buildVideoWithUserQuery()
+      .where(and(...conditions))
+      .orderBy(
+        sortFilter ? getOrderByClause(sortFilter) : desc(videos.createdAt)
+      );
+
+    return { user: userInfo, videos: userVideos, count: userVideos.length };
+  }
+);

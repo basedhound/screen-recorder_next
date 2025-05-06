@@ -300,3 +300,9 @@ export const calculateRecordingDuration = (startTime: number | null): number =>
       return `${diffDays} days ago`;
     }
   }
+
+  export const createIframeLink = (videoId: string) =>
+  `https://iframe.mediadelivery.net/embed/412800/${videoId}?autoplay=true&preload=true`;
+
+  
+  
