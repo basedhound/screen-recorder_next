@@ -56,9 +56,14 @@ const VideoDetailHeader = ({
     }
   };
 
-  const copyLink = () => {
+  const copyLink = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     navigator.clipboard.writeText(`${window.location.origin}/video/${videoId}`);
     setCopied(true);
+    setTimeout(() => {
+      setCopied(false);
+    }, 3000);
   };
 
   const TriggerVisibility = (
@@ -107,7 +112,7 @@ const VideoDetailHeader = ({
         <button onClick={copyLink}>
           <Image
             src={
-              copied ? "/assets/images/checked.png" : "/assets/icons/link.svg"
+              copied ? "/assets/icons/checkmark.svg" : "/assets/icons/link.svg"
             }
             alt="Copy Link"
             width={24}
