@@ -261,11 +261,11 @@ export const getAllVideosByUser = withErrorHandling(
       .where(eq(user.id, userIdParameter));
     if (!userInfo) throw new Error("User not found");
 
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const conditions = [
       eq(videos.userId, userIdParameter),
       !isOwner && eq(videos.visibility, "public"),
       searchQuery.trim() && ilike(videos.title, `%${searchQuery}%`),
-      // eslint-disable-next-line no-use-before-define
     ].filter(Boolean) as any[];
 
     const userVideos = await buildVideoWithUserQuery()
