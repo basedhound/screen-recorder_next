@@ -11,7 +11,7 @@ import {
   getOrderByClause,
   withErrorHandling,
 } from "../utils";
-import arcjet, { request } from "../arcjet";
+import aj, { fixedWindow, request } from "../arcjet";
 
 import { BUNNY } from "@/constants";
 // Constants with full names
@@ -195,7 +195,6 @@ export const deleteVideo = withErrorHandling(
 
 export const updateVideoVisibility = withErrorHandling(
   async (videoId: string, visibility: Visibility) => {
-    await validateWithArcjet(videoId);
     await db
       .update(videos)
       .set({ visibility, updatedAt: new Date() })
@@ -278,18 +277,21 @@ export const getAllVideosByUser = withErrorHandling(
   }
 );
 
+//https://docs.arcjet.com/rate-limiting/algorithms
+//http://docs.arcjet.com/reference/nextjs#server-actions
+// you can change the time and request as per your requirement.
 const validateWithArcjet = async (fingerPrint: string) => {
+  const rateLimit = aj.withRule(
+    fixedWindow({
+      mode: "LIVE",
+      window: "1m",
+      max: 2,
+      characteristics: ["fingerprint"],
+    })
+  );
   const req = await request();
-  const decision = await arcjet.protect(req, { fingerprint: fingerPrint });
+  const decision = await rateLimit.protect(req, { fingerprint: fingerPrint });
   if (decision.isDenied()) {
-    if (decision.reason.isBot()) {
-      throw new Error("Bot Detected");
-    }
-    if (decision.reason.isRateLimit()) {
-      throw new Error("Rate Limit Exceeded");
-    }
-    if (decision.reason.isShield()) {
-      throw new Error("Shield Detected");
-    }
+    throw new Error("Rate Limit Exceeded");
   }
 };
