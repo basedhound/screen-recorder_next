@@ -54,6 +54,9 @@ If you're getting started and need assistance or face any bugs, join our active 
 - **[Drizzle ORM](https://orm.drizzle.team/)** is a type-safe, lightweight ORM for SQL databases, providing a modern solution for interacting with databases using TypeScript, supporting migrations, queries, and schema management.  
 - **[Xata](https://xata.io)** is a serverless PostgreSQL platform offering auto-scaling, zero-downtime schema migrations, real-time branching, and built-in full-text search. It provides a spreadsheet-like UI for intuitive data management, enhancing modern development workflows.
 - **[TypeScript](https://www.typescriptlang.org/)** is a superset of JavaScript that adds static typing, providing better tooling, code quality, and error detection for developers, making it ideal for building large-scale applications.
+- **[Arcjet](https://arcjet.com/)** is a developer-first security platform that integrates bot protection, rate limiting, email validation, and attack protection into your application with minimal code. It offers customizable protection for forms, login pages, and API routes, supporting frameworks like Node.js, Next.js, Deno, Bun, Remix, SvelteKit, and NestJS.
+
+
 
 ## <a name="features">🔋 Features</a>
 
@@ -66,6 +69,8 @@ If you're getting started and need assistance or face any bugs, join our active 
 👉 **AI Transcripts**: Get AI-generated transcripts for uploaded videos, making content more accessible and searchable.  
 
 👉 **Privacy Control**: Toggle video visibility between public and private, ensuring full control over your content.  
+
+👉 **Arcjet Integration**: Easily implement bot protection, rate limiting, email validation, and attack protection with minimal code, enhancing your app's security.
 
 👉 **Metadata**: Access video metadata, including unique video ID and URL, for easy sharing and referencing.  
 
@@ -103,8 +108,8 @@ Make sure you have the following installed on your machine:
 **Cloning the Repository**
 
 ```bash
-git clone https://github.com/JavaScript-Mastery-Pro/loom-app.git 
-cd loom-app
+git clone 
+cd 
 ```
 
 **Installation**
@@ -120,31 +125,33 @@ npm install
 Create a new file named `.env` in the root of your project and add the following content:
 
 ```env
+# Next.js
 NEXT_PUBLIC_BASE_URL=http://localhost:3000
 
-BETTER_AUTH_SECRET=
-BETTER_AUTH_URL=http://localhost:3000
+# [Xata] Configuration used by the CLI and the SDK
+# Make sure your framework/tooling loads this file on startup to have it available for the SDK
+XATA_API_KEY=
+DATABASE_URL_POSTGRES=
 
+# Google
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
+# BetterAuth
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+
+# Bunny
 BUNNY_STORAGE_ACCESS_KEY=
 BUNNY_LIBRARY_ID=
 BUNNY_STREAM_ACCESS_KEY=
 
-DATABASE_URL_POSTGRES=
-
-# [Xata] Configuration used by the CLI and the SDK
-# Make sure your framework/tooling loads this file on startup to have it available for the SDK
-XATA_BRANCH=main
+#ArcJet
+ARCJET_API_KEY=
 XATA_API_KEY=
 ```
 
-Replace the placeholder values with your actual ImageKit, NeonDB, Upstash, and Resend credentials. You can obtain these credentials by signing up on:
-- [Better-Auth](https://www.better-auth.com)
-- [Google](https://console.cloud.google.com)
-- [Bunny.net](https://dash.bunny.net)
-- [Xata.io](https://xata.io)
+Replace the placeholder values with your actual ImageKit, NeonDB, Upstash, and Resend credentials. You can obtain these credentials by signing up on: [Better-Auth](https://www.better-auth.com), [Google](https://console.cloud.google.com), [Bunny.net](https://dash.bunny.net), [Xata.io](https://xata.io), [Arcjet](https://arcjet.com).
 
 **Running the Project**
 
@@ -154,28 +161,6 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser to view the project.
 
-## <a name="snippets">🕸️ Snippets</a>
-
-<details>
-<summary><code>Example</code></summary>
-```typescript
-copy the code here 
-```
-</details>
-
-<details>
-<summary><code>Example</code></summary>
-```css
-copy the code here 
-```
-</details>
-
-<details>
-<summary><code>Example</code></summary>
-```typescript
-copy the code here 
-```
-</details>
 
 ## <a name="links">🔗 Assets</a>
 
@@ -192,6 +177,6 @@ Assets and snippets used in the project can be found in the **[video kit](https:
 Enjoyed creating this project? Dive deeper into our PRO courses for a richer learning adventure. They're packed with
 detailed explanations, cool features, and exercises to boost your skills. Give it a go!
 
-<a href="https://jsmastery.pro/" target="_blank">
+<a href="https://jsm.dev/snapcast-jsmpro" target="_blank">
   <img src="public/readme/jsmpro.jpg" alt="Project Banner">
 </a>
