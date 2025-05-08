@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { sql } from "drizzle-orm";
+import { ilike, sql } from "drizzle-orm";
 import { videos } from "@/drizzle/schema";
 import { DEFAULT_VIDEO_CONFIG, DEFAULT_RECORDING_CONFIG } from "@/constants";
 
@@ -248,59 +248,63 @@ export const createRecordingBlob = (
 export const calculateRecordingDuration = (startTime: number | null): number =>
   startTime ? Math.round((Date.now() - startTime) / 1000) : 0;
 
+export function parseTranscript(transcript: string): TranscriptEntry[] {
+  const lines = transcript.replace(/^WEBVTT\s*/, "").split("\n");
+  const result: TranscriptEntry[] = [];
+  let tempText: string[] = [];
+  let startTime: string | null = null;
 
-  export function parseTranscript(transcript: string): TranscriptEntry[] {
-    const lines = transcript.replace(/^WEBVTT\s*/, "").split("\n");
-    const result: TranscriptEntry[] = [];
-    let tempText: string[] = [];
-    let startTime: string | null = null;
-  
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      const timeMatch = trimmedLine.match(
-        /(\d{2}:\d{2}:\d{2})\.\d{3}\s-->\s(\d{2}:\d{2}:\d{2})\.\d{3}/
-      );
-  
-      if (timeMatch) {
-        if (tempText.length > 0 && startTime) {
-          result.push({ time: startTime, text: tempText.join(" ") });
-          tempText = [];
-        }
-        startTime = timeMatch[1] ?? null;
-      } else if (trimmedLine) {
-        tempText.push(trimmedLine);
-      }
-  
-      if (tempText.length >= 3 && startTime) {
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    const timeMatch = trimmedLine.match(
+      /(\d{2}:\d{2}:\d{2})\.\d{3}\s-->\s(\d{2}:\d{2}:\d{2})\.\d{3}/
+    );
+
+    if (timeMatch) {
+      if (tempText.length > 0 && startTime) {
         result.push({ time: startTime, text: tempText.join(" ") });
         tempText = [];
-        startTime = null;
       }
+      startTime = timeMatch[1] ?? null;
+    } else if (trimmedLine) {
+      tempText.push(trimmedLine);
     }
-  
-    if (tempText.length > 0 && startTime) {
+
+    if (tempText.length >= 3 && startTime) {
       result.push({ time: startTime, text: tempText.join(" ") });
-    }
-  
-    return result;
-  }
-
-  export function daysAgo(inputDate: Date): string {
-    const input = new Date(inputDate);
-    const now = new Date();
-  
-    const diffTime = now.getTime() - input.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  
-    if (diffDays <= 0) {
-      return "Today";
-    } else if (diffDays === 1) {
-      return "1 day ago";
-    } else {
-      return `${diffDays} days ago`;
+      tempText = [];
+      startTime = null;
     }
   }
 
-  export const createIframeLink = (videoId: string) =>
-  `https://iframe.mediadelivery.net/embed/421422/${videoId}?autoplay=true&preload=true`
-  
+  if (tempText.length > 0 && startTime) {
+    result.push({ time: startTime, text: tempText.join(" ") });
+  }
+
+  return result;
+}
+
+export function daysAgo(inputDate: Date): string {
+  const input = new Date(inputDate);
+  const now = new Date();
+
+  const diffTime = now.getTime() - input.getTime();
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays <= 0) {
+    return "Today";
+  } else if (diffDays === 1) {
+    return "1 day ago";
+  } else {
+    return `${diffDays} days ago`;
+  }
+}
+
+export const createIframeLink = (videoId: string) =>
+  `https://iframe.mediadelivery.net/embed/421422/${videoId}?autoplay=true&preload=true`;
+
+export const doesTitleMatch = (videos: any, searchQuery: string) =>
+  ilike(
+    sql`REPLACE(REPLACE(REPLACE(LOWER(${videos.title}), '-', ''), '.', ''), ' ', '')`,
+    `%${searchQuery.replace(/[-. ]/g, "").toLowerCase()}%`
+  );
