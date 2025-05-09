@@ -1,6 +1,0 @@
-{
-  "databaseURL": "https://Franck-V-s-workspace-59mtun.eu-central-1.xata.sh/db/snapcast",
-  "codegen": {
-    "output": "src/xata.ts"
-  }
-}
