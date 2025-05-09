@@ -1,19 +1,15 @@
 "use server";
+
 import { db } from "@/drizzle/db";
 import { videos, user } from "@/drizzle/schema";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { auth } from "@/lib/auth";
-import {
-  apiFetch,
-  getEnv,
-  getOrderByClause,
-  withErrorHandling,
-} from "../utils";
+import {apiFetch, doesTitleMatch, getEnv, getOrderByClause, withErrorHandling} from "@/lib/utils";
+import { BUNNY } from "@/constants";
 import aj, { fixedWindow, request } from "../arcjet";
 
-import { BUNNY } from "@/constants";
 // Constants with full names
 const VIDEO_STREAM_BASE_URL = BUNNY.STREAM_BASE_URL;
 const THUMBNAIL_STORAGE_BASE_URL = BUNNY.STORAGE_BASE_URL;
@@ -22,6 +18,22 @@ const BUNNY_LIBRARY_ID = getEnv("BUNNY_LIBRARY_ID");
 const ACCESS_KEYS = {
   streamAccessKey: getEnv("BUNNY_STREAM_ACCESS_KEY"),
   storageAccessKey: getEnv("BUNNY_STORAGE_ACCESS_KEY"),
+};
+
+const validateWithArcjet = async (fingerPrint: string) => {
+  const rateLimit = aj.withRule(
+    fixedWindow({
+      mode: "LIVE",
+      window: "1m",
+      max: 2,
+      characteristics: ["fingerprint"],
+    })
+  );
+  const req = await request();
+  const decision = await rateLimit.protect(req, { fingerprint: fingerPrint });
+  if (decision.isDenied()) {
+    throw new Error("Rate Limit Exceeded");
+  }
 };
 
 // Helper functions with descriptive names
@@ -108,33 +120,26 @@ export const saveVideoDetails = withErrorHandling(
   }
 );
 
-export const getAllVideos = withErrorHandling(
-  async (
-    searchQuery: string = "",
-    sortFilter?: string,
-    pageNumber: number = 1,
-    pageSize: number = 8
-  ) => {
-    const currentUserId = (
-      await auth.api.getSession({ headers: await headers() })
-    )?.user.id;
+export const getAllVideos = withErrorHandling(async (
+  searchQuery: string = '',
+  sortFilter?: string,
+  pageNumber: number = 1,
+  pageSize: number = 8,
+) => {
+  const session = await auth.api.getSession({ headers: await headers() })
+  const currentUserId = session?.user.id;
 
-    // Base visibility: public or owned by current user
-    const visibilityCondition = or(
-      eq(videos.visibility, "public"),
-      eq(videos.userId, currentUserId!)
-    );
+  const canSeeTheVideos = or(
+      eq(videos.visibility, 'public'),
+      eq(videos.userId, currentUserId!),
+  );
 
-    // Optional search by normalized title
-    const whereCondition = searchQuery.trim()
+  const whereCondition = searchQuery.trim()
       ? and(
-          visibilityCondition,
-          ilike(
-            sql`REPLACE(REPLACE(REPLACE(LOWER(${videos.title}), '-', ''), '.', ''), ' ', '')`,
-            `%${searchQuery.replace(/[-. ]/g, "").toLowerCase()}%`
-          )
-        )
-      : visibilityCondition;
+          canSeeTheVideos,
+          doesTitleMatch(videos, searchQuery),
+      )
+      : canSeeTheVideos
 
     // Count total for pagination
     const [{ totalCount }] = await db
@@ -174,27 +179,67 @@ export const getVideoById = withErrorHandling(async (videoId: string) => {
   return videoRecord;
 });
 
-export const deleteVideo = withErrorHandling(
-  async (videoId: string, thumbnailUrl: string) => {
-    await apiFetch(
-      `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoId}`,
-      { method: "DELETE", bunnyType: "stream" }
-    );
+export const getTranscript = withErrorHandling(async (videoId: string) => {
+  const response = await fetch(
+    `${BUNNY.TRANSCRIPT_URL}/${videoId}/captions/en-auto.vtt`
+  );
+  return response.text();
+});
 
-    const thumbnailPath = thumbnailUrl.split("thumbnails/")[1];
-    await apiFetch(
-      `${THUMBNAIL_STORAGE_BASE_URL}/thumbnails/${thumbnailPath}`,
-      { method: "DELETE", bunnyType: "storage", expectJson: false }
-    );
+export const incrementVideoViews = withErrorHandling(
+  async (videoId: string) => {
+    await db
+      .update(videos)
+      .set({ views: sql`${videos.views} + 1`, updatedAt: new Date() })
+      .where(eq(videos.videoId, videoId));
 
-    await db.delete(videos).where(eq(videos.videoId, videoId));
-    revalidatePaths(["/", `/video/${videoId}`]);
+    revalidatePaths([`/video/${videoId}`]);
     return {};
+  }
+);
+
+export const getAllVideosByUser = withErrorHandling(
+  async (
+    userIdParameter: string,
+    searchQuery: string = "",
+    sortFilter?: string
+  ) => {
+    const currentUserId = (
+      await auth.api.getSession({ headers: await headers() })
+    )?.user.id;
+    const isOwner = userIdParameter === currentUserId;
+
+    const [userInfo] = await db
+      .select({
+        id: user.id,
+        name: user.name,
+        image: user.image,
+        email: user.email,
+      })
+      .from(user)
+      .where(eq(user.id, userIdParameter));
+    if (!userInfo) throw new Error("User not found");
+
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+    const conditions = [
+      eq(videos.userId, userIdParameter),
+      !isOwner && eq(videos.visibility, "public"),
+      searchQuery.trim() && ilike(videos.title, `%${searchQuery}%`),
+    ].filter(Boolean) as any[];
+
+    const userVideos = await buildVideoWithUserQuery()
+      .where(and(...conditions))
+      .orderBy(
+        sortFilter ? getOrderByClause(sortFilter) : desc(videos.createdAt)
+      );
+
+    return { user: userInfo, videos: userVideos, count: userVideos.length };
   }
 );
 
 export const updateVideoVisibility = withErrorHandling(
   async (videoId: string, visibility: Visibility) => {
+    await validateWithArcjet(videoId);
     await db
       .update(videos)
       .set({ visibility, updatedAt: new Date() })
@@ -220,79 +265,21 @@ export const getVideoProcessingStatus = withErrorHandling(
   }
 );
 
-export const incrementVideoViews = withErrorHandling(
-  async (videoId: string) => {
-    await db
-      .update(videos)
-      .set({ views: sql`${videos.views} + 1`, updatedAt: new Date() })
-      .where(eq(videos.videoId, videoId));
+export const deleteVideo = withErrorHandling(
+  async (videoId: string, thumbnailUrl: string) => {
+    await apiFetch(
+      `${VIDEO_STREAM_BASE_URL}/${BUNNY_LIBRARY_ID}/videos/${videoId}`,
+      { method: "DELETE", bunnyType: "stream" }
+    );
 
-    revalidatePaths([`/video/${videoId}`]);
+    const thumbnailPath = thumbnailUrl.split("thumbnails/")[1];
+    await apiFetch(
+      `${THUMBNAIL_STORAGE_BASE_URL}/thumbnails/${thumbnailPath}`,
+      { method: "DELETE", bunnyType: "storage", expectJson: false }
+    );
+
+    await db.delete(videos).where(eq(videos.videoId, videoId));
+    revalidatePaths(["/", `/video/${videoId}`]);
     return {};
   }
 );
-
-export const getTranscript = withErrorHandling(async (videoId: string) => {
-  const response = await fetch(
-    `${BUNNY.TRANSCRIPT_URL}/${videoId}/captions/en-auto.vtt`
-  );
-  return response.text();
-});
-
-export const getAllVideosByUser = withErrorHandling(
-  async (
-    userIdParameter: string,
-    searchQuery: string = "",
-    sortFilter?: string
-  ) => {
-    const currentUserId = (
-      await auth.api.getSession({ headers: await headers() })
-    )?.user.id;
-    const isOwner = userIdParameter === currentUserId;
-
-    const [userInfo] = await db
-      .select({
-        id: user.id,
-        name: user.name,
-        image: user.image,
-        email: user.email,
-      })
-      .from(user)
-      .where(eq(user.id, userIdParameter));
-    if (!userInfo) throw new Error("User not found");
-
-    /* eslint-disable @typescript-eslint/no-explicit-any */
-    const conditions = [
-      eq(videos.userId, userIdParameter),
-      !isOwner && eq(videos.visibility, "public"),
-      searchQuery.trim() && ilike(videos.title, `%${searchQuery}%`),
-    ].filter(Boolean) as any[];
-
-    const userVideos = await buildVideoWithUserQuery()
-      .where(and(...conditions))
-      .orderBy(
-        sortFilter ? getOrderByClause(sortFilter) : desc(videos.createdAt)
-      );
-
-    return { user: userInfo, videos: userVideos, count: userVideos.length };
-  }
-);
-
-//https://docs.arcjet.com/rate-limiting/algorithms
-//http://docs.arcjet.com/reference/nextjs#server-actions
-// you can change the time and request as per your requirement.
-const validateWithArcjet = async (fingerPrint: string) => {
-  const rateLimit = aj.withRule(
-    fixedWindow({
-      mode: "LIVE",
-      window: "1m",
-      max: 2,
-      characteristics: ["fingerprint"],
-    })
-  );
-  const req = await request();
-  const decision = await rateLimit.protect(req, { fingerprint: fingerPrint });
-  if (decision.isDenied()) {
-    throw new Error("Rate Limit Exceeded");
-  }
-};
