@@ -1,6 +1,6 @@
 <div align="center">
   <br />
-    <a href="" target="_blank">
+    <a href="https://snapcast-fv.vercel.app" target="_blank">
       <img src="public/readme/hero.jpg" alt="Project Banner">
     </a>
   <br />
